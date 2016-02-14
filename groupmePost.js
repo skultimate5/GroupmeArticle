@@ -10,7 +10,7 @@ var searchTerm = "?s=%20"
 var year = 2016; 	//get the current year
 var mostRecentArticleDate = new Date("2011-04-12");
 
-var cronJob = cron.job("*/5 * * * * *", function(){			//runs every hour
+var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
     // perform operation e.g. GET request http.get() etc.
     getOnePageArticles(searchTerm, year, function(newArticle){
 		if (newArticle != null){
