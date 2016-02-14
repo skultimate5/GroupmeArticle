@@ -3,7 +3,8 @@ var cheerio = require('cheerio');
 var qs = require('qs');
 var HTTPS = require('https');
 var cron = require('cron');
-var app = require('express');
+var express = require('express')
+    , app = express()
 
 //change this to cwru and other forms
 //var searchTerm = formatSearchVal('case western');
@@ -11,23 +12,15 @@ var searchTerm = "?s=%20"
 var year = 2016; 	//get the current year
 var mostRecentArticleDate = new Date("2011-04-12");
 
-const PORT=8080; 
+app.get('/', function (req, res) {
+  res.send('Hello World!');
+});
 
-//We need a function which handles requests and send response
-function handleRequest(request, response){
-    response.end('It Works!! Path Hit: ' + request.url);
-}
-
-//Create a server
-var server = HTTPS.createServer(handleRequest);
-
-//Lets start our server
-server.listen(PORT, function(){
-    //Callback triggered when server is successfully listening. Hurray!
-    console.log("Server listening on: http://localhost:%s", PORT);
-    var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
-    // perform operation e.g. GET request http.get() etc.
-    getOnePageArticles(searchTerm, year, function(newArticle){
+app.listen(3000, function () {
+  console.log('Example app listening on port 3000!');
+  var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
+	// perform operation e.g. GET request http.get() etc.
+	getOnePageArticles(searchTerm, year, function(newArticle){
 		if (newArticle != null){
 			postMessage(newArticle)
 			console.log(newArticle)
@@ -36,11 +29,11 @@ server.listen(PORT, function(){
 			console.log("No new article")
 		}
 	});
-    
-    console.info('cron job completed');
-	
+
+	console.info('cron job completed');
+
 	}); 
-	
+
 	cronJob.start();
 });
 
