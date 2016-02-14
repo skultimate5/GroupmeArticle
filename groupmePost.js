@@ -3,6 +3,7 @@ var cheerio = require('cheerio');
 var qs = require('qs');
 var HTTPS = require('https');
 var cron = require('cron');
+var app = require('express');
 
 //change this to cwru and other forms
 //var searchTerm = formatSearchVal('case western');
@@ -10,7 +11,21 @@ var searchTerm = "?s=%20"
 var year = 2016; 	//get the current year
 var mostRecentArticleDate = new Date("2011-04-12");
 
-var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
+const PORT=8080; 
+
+//We need a function which handles requests and send response
+function handleRequest(request, response){
+    response.end('It Works!! Path Hit: ' + request.url);
+}
+
+//Create a server
+var server = HTTPS.createServer(handleRequest);
+
+//Lets start our server
+server.listen(PORT, function(){
+    //Callback triggered when server is successfully listening. Hurray!
+    console.log("Server listening on: http://localhost:%s", PORT);
+    var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
     // perform operation e.g. GET request http.get() etc.
     getOnePageArticles(searchTerm, year, function(newArticle){
 		if (newArticle != null){
@@ -21,16 +36,13 @@ var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
 			console.log("No new article")
 		}
 	});
+    
     console.info('cron job completed');
-}); 
-cronJob.start();
-
-/*getOnePageArticles(searchTerm, year, function(newArticle){
-	if (newArticle != null){
-		postMessage(newArticle)
-		console.log(newArticle)
-	}
-}); */
+	
+	}); 
+	
+	cronJob.start();
+});
 
 
 function postMessage(newArticle) {
@@ -135,7 +147,7 @@ function formatDate(dateHTML) {
 
 function getOnePageArticles(searchTerm, year, callback){
 	var url = "http://www.ultiworld.com/";
-	console.log(url + searchTerm)
+	//console.log(url + searchTerm)
 	request(url + searchTerm, function(err, resp, body){
 
 		//Check for error
@@ -157,7 +169,6 @@ function getOnePageArticles(searchTerm, year, callback){
 	  	  	var formattedDate = formatDate(dateHTML);
 	  		var substring = dateHTML.substring(0,21).split(" ")[6]		//getting year of article
 	  		if (formattedDate > mostRecentArticleDate){			//see if new article is more recent than last posted article
-	  			console.log("here")
 	  			mostRecentArticleDate = formattedDate
 	  			newArticle = $(listElements[i]).children().attr('href');
 	  		}
