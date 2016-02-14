@@ -1,0 +1,19 @@
+{
+  "name": "Groupmeposter",
+  "description": "Post to groupme when new ultiworld article about case",
+  "main": "groupmePost.js",
+  "scripts": {
+    "start": "node groupmePost.js"
+  },
+  "engines": {
+    "node": "0.12.7",
+    "npm": "2.11.3"
+  },
+  "dependencies": {
+    "request": "latest",
+    "cheerio": "latest",
+    "qs": "5.0",
+    "https": "latest",
+    "cron": "latest"
+  }
+}
