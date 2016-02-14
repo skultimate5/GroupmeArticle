@@ -12,12 +12,14 @@ var searchTerm = "?s=%20"
 var year = 2016; 	//get the current year
 var mostRecentArticleDate = new Date("2011-04-12");
 
+app.set('port', (process.env.PORT || 5000));
+
 app.get('/', function (req, res) {
   res.send('Hello World!');
 });
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+app.listen(app.get('port'), function () {
+  console.log('Example app listening on port ' + app.get('port'));
   var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
 	// perform operation e.g. GET request http.get() etc.
 	getOnePageArticles(searchTerm, year, function(newArticle){
