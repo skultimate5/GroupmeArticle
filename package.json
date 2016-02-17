@@ -1,6 +1,7 @@
 {
   "name": "Groupmeposter",
   "description": "Post to groupme when new ultiworld article about case",
+  "version": "0.0.1",
   "main": "groupmePost.js",
   "scripts": {
     "start": "node groupmePost.js"
