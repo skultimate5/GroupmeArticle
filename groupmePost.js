@@ -10,7 +10,8 @@ var express = require('express')
 //var searchTerm = formatSearchVal('case western');
 var searchTerm = "?s=%20"
 var year = 2016; 	//get the current year
-var mostRecentArticleDate = new Date("2011-04-12");
+var mostRecentArticleDate = new Date("2016-2-15");
+var mostRecentArticleName = ""
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -20,7 +21,7 @@ app.get('/', function (req, res) {
 
 app.listen(app.get('port'), function () {
   console.log('Example app listening on port ' + app.get('port'));
-  var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
+  /*var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
 	// perform operation e.g. GET request http.get() etc.
 	getOnePageArticles(searchTerm, year, function(newArticle){
 		if (newArticle != null){
@@ -36,7 +37,18 @@ app.listen(app.get('port'), function () {
 
 	}); 
 
-	cronJob.start();
+	cronJob.start(); */
+
+	getOnePageArticles(searchTerm, year, function(newArticles){
+		if (newArticles.length != 0){
+			for (var i = 0; i < newArticles.length; i++)
+				//postMessage(newArticle)
+				console.log(newArticles[i])
+		}
+		else{
+			console.log("No new article")
+		}
+	});
 });
 
 
@@ -158,16 +170,19 @@ function getOnePageArticles(searchTerm, year, callback){
 		  $ = cheerio.load(body);
 		  var listElements = $('.snippet-excerpt__heading'); 		//list of articles
 		  var datesPosted = $('.snippet-excerpt__byline');			//date for each article
-		  var newArticle = null;
+		  var newArticles = [];
+		  var formattedDate, articleName;
+		  //$.fn.reverse = [].reverse;
 		  $(datesPosted).each(function(i, date){
 	  	  	var dateHTML = $(date).html();
-	  	  	var formattedDate = formatDate(dateHTML);
-	  		var substring = dateHTML.substring(0,21).split(" ")[6]		//getting year of article
-	  		if (formattedDate > mostRecentArticleDate){			//see if new article is more recent than last posted article
-	  			mostRecentArticleDate = formattedDate
-	  			newArticle = $(listElements[i]).children().attr('href');
+	  	  	formattedDate = formatDate(dateHTML);
+	  	  	articleName = $(listElements[i]).children().text()
+	  		if (formattedDate > mostRecentArticleDate && mostRecentArticleName != articleName){			//see if new article is more recent than last posted article
+	  			newArticles.push($(listElements[i]).children().attr('href'));
 	  		}
-		  });	  
-		  callback(newArticle);
+		  });
+		  mostRecentArticleDate = formattedDate
+		  mostRecentArticleName = articleName 
+		  callback(newArticles);
 	});
 }
