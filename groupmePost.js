@@ -35,7 +35,7 @@ app.listen(app.get('port'), function () {
 	getOnePageArticles(searchTerm, year, function(newArticles){
 		if (newArticles.length != 0){
 			for (var i = 0; i < newArticles.length; i++)
-				//postMessage(newArticle)
+				postMessage(newArticle)
 				console.log(newArticles[i])
 		}
 		else{
