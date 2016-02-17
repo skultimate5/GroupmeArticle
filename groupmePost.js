@@ -25,7 +25,7 @@ app.listen(app.get('port'), function () {
   var date1 = new Date();
   todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
 
-  var cronJob = cron.job("*/8 * * * * *", function(){			//runs every hour
+  var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
 	// perform operation e.g. GET request http.get() etc.
 	var holdDate = new Date();
 	if (!(holdDate.getFullYear() == todayDate.getFullYear() && holdDate.getMonth() == todayDate.getMonth(), holdDate.getDate() == todayDate.getDate())){
