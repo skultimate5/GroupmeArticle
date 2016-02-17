@@ -10,8 +10,8 @@ var express = require('express')
 //var searchTerm = formatSearchVal('case western');
 var searchTerm = "?s=%20"
 var year = 2016; 	//get the current year
-var mostRecentArticleDate = new Date("2016-2-15");
-var mostRecentArticleName = ""
+var todayArticles = []
+var todayDate = null;
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -21,24 +21,17 @@ app.get('/', function (req, res) {
 
 app.listen(app.get('port'), function () {
   console.log('Example app listening on port ' + app.get('port'));
-  /*var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
+
+  var date1 = new Date();
+  todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
+
+  var cronJob = cron.job("*/8 * * * * *", function(){			//runs every hour
 	// perform operation e.g. GET request http.get() etc.
-	getOnePageArticles(searchTerm, year, function(newArticle){
-		if (newArticle != null){
-			postMessage(newArticle)
-			console.log(newArticle)
-		}
-		else{
-			console.log("No new article")
-		}
-	});
-
-	console.info('cron job completed');
-
-	}); 
-
-	cronJob.start(); */
-
+	var holdDate = new Date();
+	if (!(holdDate.getFullYear() == todayDate.getFullYear() && holdDate.getMonth() == todayDate.getMonth(), holdDate.getDate() == todayDate.getDate())){
+		todayDate = new Date(holdDate.getFullYear(), holdDate.getMonth(), holdDate.getDate());
+		todayArticles = []
+	}
 	getOnePageArticles(searchTerm, year, function(newArticles){
 		if (newArticles.length != 0){
 			for (var i = 0; i < newArticles.length; i++)
@@ -49,6 +42,10 @@ app.listen(app.get('port'), function () {
 			console.log("No new article")
 		}
 	});
+
+	}); 
+
+	cronJob.start(); 
 });
 
 
@@ -152,6 +149,16 @@ function formatDate(dateHTML) {
 	return formattedDate
 }
 
+function contains(a, obj) {
+    var i = a.length;
+    while (i--) {
+       if (a[i] === obj) {
+           return true;
+       }
+    }
+    return false;
+}
+
 function getOnePageArticles(searchTerm, year, callback){
 	var url = "http://www.ultiworld.com/";
 	//console.log(url + searchTerm)
@@ -177,12 +184,11 @@ function getOnePageArticles(searchTerm, year, callback){
 	  	  	var dateHTML = $(date).html();
 	  	  	formattedDate = formatDate(dateHTML);
 	  	  	articleName = $(listElements[i]).children().text()
-	  		if (formattedDate > mostRecentArticleDate && mostRecentArticleName != articleName){			//see if new article is more recent than last posted article
+	  		if (formattedDate >= todayDate && !contains(todayArticles, articleName)){
 	  			newArticles.push($(listElements[i]).children().attr('href'));
+	  			todayArticles.push(articleName)
 	  		}
 		  });
-		  mostRecentArticleDate = formattedDate
-		  mostRecentArticleName = articleName 
 		  callback(newArticles);
 	});
 }
