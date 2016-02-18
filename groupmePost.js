@@ -3,6 +3,7 @@ var cheerio = require('cheerio');
 var qs = require('qs');
 var HTTPS = require('https');
 var cron = require('cron');
+var util = require('util');
 var express = require('express')
     , app = express()
 
@@ -21,11 +22,12 @@ app.get('/', function (req, res) {
 
 app.listen(app.get('port'), function () {
   console.log('Example app listening on port ' + app.get('port'));
+  //util.puts('Example app listening on port ' + app.get('port'))
 
   var date1 = new Date();
   todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
 
-  var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
+  var cronJob = cron.job("0 */30 * * * *", function(){			//runs every hour
 	// perform operation e.g. GET request http.get() etc.
 	var holdDate = new Date();
 	if (!(holdDate.getFullYear() == todayDate.getFullYear() && holdDate.getMonth() == todayDate.getMonth(), holdDate.getDate() == todayDate.getDate())){
@@ -35,11 +37,13 @@ app.listen(app.get('port'), function () {
 	getOnePageArticles(searchTerm, year, function(newArticles){
 		if (newArticles.length != 0){
 			for (var i = 0; i < newArticles.length; i++)
-				postMessage(newArticle)
+				postMessage(newArticles[i])
 				console.log(newArticles[i])
+				//util.puts(newArticles[i])
 		}
 		else{
 			console.log("No new article")
+			//util.puts("No new article")
 		}
 	});
 
