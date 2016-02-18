@@ -3,7 +3,6 @@ var cheerio = require('cheerio');
 var qs = require('qs');
 var HTTPS = require('https');
 var cron = require('cron');
-var util = require('util');
 var express = require('express')
     , app = express()
 
@@ -22,7 +21,6 @@ app.get('/', function (req, res) {
 
 app.listen(app.get('port'), function () {
   console.log('Example app listening on port ' + app.get('port'));
-  //util.puts('Example app listening on port ' + app.get('port'))
 
   var date1 = new Date();
   todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
@@ -39,11 +37,9 @@ app.listen(app.get('port'), function () {
 			for (var i = 0; i < newArticles.length; i++)
 				postMessage(newArticles[i])
 				console.log(newArticles[i])
-				//util.puts(newArticles[i])
 		}
 		else{
 			console.log("No new article")
-			//util.puts("No new article")
 		}
 	});
 
