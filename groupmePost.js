@@ -25,7 +25,7 @@ app.listen(app.get('port'), function () {
   var date1 = new Date();
   todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
 
-  var cronJob = cron.job("0 */30 * * * *", function(){			//runs every hour
+  var cronJob = cron.job("0 */15 * * * *", function(){			//runs every half an hour
 	// perform operation e.g. GET request http.get() etc.
 	var holdDate = new Date();
 	if (!(holdDate.getFullYear() == todayDate.getFullYear() && holdDate.getMonth() == todayDate.getMonth(), holdDate.getDate() == todayDate.getDate())){
@@ -34,12 +34,14 @@ app.listen(app.get('port'), function () {
 	}
 	getOnePageArticles(searchTerm, year, function(newArticles){
 		if (newArticles.length != 0){
-			for (var i = 0; i < newArticles.length; i++)
+			for (var i = 0; i < newArticles.length; i++){
 				postMessage(newArticles[i])
-				console.log(newArticles[i])
+				console.log("New Articles " + new Date())
+			}
 		}
 		else{
-			console.log("No new article")
+			//put the time that this was printed as well
+			console.log("No new article " + new Date());
 		}
 	});
 
