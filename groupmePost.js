@@ -25,7 +25,7 @@ app.listen(app.get('port'), function () {
   var date1 = new Date();
   todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
 
-  var cronJob = cron.job("0 */15 * * * *", function(){			//runs every half an hour
+  var cronJob = cron.job("0 0 * * * *", function(){			//runs every half an hour
 	// perform operation e.g. GET request http.get() etc.
 	var holdDate = new Date();
 	if (!(holdDate.getFullYear() == todayDate.getFullYear() && holdDate.getMonth() == todayDate.getMonth(), holdDate.getDate() == todayDate.getDate())){
@@ -54,7 +54,7 @@ app.listen(app.get('port'), function () {
 function postMessage(newArticle) {
   var botResponse, options, body, botReq;
 
-  var botID = '26d1e43f3942fcab2aa1cc68b1';
+  var botID = 'a3f7470da22027dd92283c778d';
   botResponse = newArticle
 
   options = {
