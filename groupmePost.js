@@ -25,7 +25,7 @@ app.listen(app.get('port'), function () {
   var date1 = new Date();
   todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
 
-  var cronJob = cron.job("0 0 * * * *", function(){			//runs every half an hour
+  var cronJob = cron.job("0 * * * * *", function(){			//runs every half an hour
 	// perform operation e.g. GET request http.get() etc.
 	var holdDate = new Date();
 	if (!(holdDate.getFullYear() == todayDate.getFullYear() && holdDate.getMonth() == todayDate.getMonth(), holdDate.getDate() == todayDate.getDate())){
@@ -33,16 +33,18 @@ app.listen(app.get('port'), function () {
 		todayArticles = []
 	}
 	getOnePageArticles(searchTerm, year, function(newArticles){
-		if (newArticles.length != 0){
-			for (var i = 0; i < newArticles.length; i++){
-				postMessage(newArticles[i])
-				console.log("New Articles " + new Date())
+		getUsauArticles(newArticles, function(newArticles){
+			if (newArticles.length != 0){
+				for (var i = 0; i < newArticles.length; i++){
+					postMessage(newArticles[i])
+					console.log("New Articles " + new Date())
+				}
 			}
-		}
-		else{
-			//put the time that this was printed as well
-			console.log("No new article " + new Date());
-		}
+			else{
+				//put the time that this was printed as well
+				console.log("No new article " + new Date());
+			}
+		})
 	});
 
 	}); 
@@ -100,9 +102,7 @@ function formatSearchVal(searchVal){
 	return searchTerm
 }
 
-function formatDate(dateHTML) {
-	var splittedDate = dateHTML.substring(0,21).split(" ")
-	var month = splittedDate[4]
+function formatDate(day, month, year) {
 	var monthNum;
 
 	switch (month){
@@ -144,8 +144,6 @@ function formatDate(dateHTML) {
 			break;
 
 	}
-	var day = splittedDate[5]
-	var year = splittedDate[6]
 	var date = year + "-" + month + "-" + day
 	var formattedDate = new Date(date)
 	return formattedDate
@@ -161,9 +159,40 @@ function contains(a, obj) {
     return false;
 }
 
+function getUsauArticles(newArticles, callback){
+	var url = 'http://www.usaultimate.org/news/default.aspx';
+	request(url, function(err, resp, body){
+
+		//Check for error
+	    if(err){
+	        return console.log('Error:', err);
+	    }
+
+	    //Check for right status code
+	    if(resp.statusCode !== 200){
+	        return console.log('Invalid Status Code Returned:', resp.statusCode);
+	    }
+
+		  $ = cheerio.load(body);
+		  var listElements = $('.bold')
+		  var datesPosted = $('.time');
+		  var formattedDate, articleName;
+		  $(datesPosted).each(function(i, date){
+	  	  	var dateHTML = $(date).html();
+	  	  	var splittedDate = dateHTML.substring(0,21).split(" ")
+	  	  	formattedDate = formatDate(splittedDate[1], splittedDate[0], splittedDate[2])
+	  	  	articleName = $(listElements[i]).text()
+	  	  	if (formattedDate >= todayDate && !contains(todayArticles, articleName)){
+	  			newArticles.push($(listElements[i]).attr("href"));
+	  			todayArticles.push(articleName)
+	  		}
+		  });
+		  callback(newArticles);
+	});
+}
+
 function getOnePageArticles(searchTerm, year, callback){
 	var url = "http://www.ultiworld.com/";
-	//console.log(url + searchTerm)
 	request(url + searchTerm, function(err, resp, body){
 
 		//Check for error
@@ -181,10 +210,13 @@ function getOnePageArticles(searchTerm, year, callback){
 		  var datesPosted = $('.snippet-excerpt__byline');			//date for each article
 		  var newArticles = [];
 		  var formattedDate, articleName;
-		  //$.fn.reverse = [].reverse;
 		  $(datesPosted).each(function(i, date){
 	  	  	var dateHTML = $(date).html();
-	  	  	formattedDate = formatDate(dateHTML);
+	  	  	var splittedDate = dateHTML.substring(0,21).split(" ")
+			var month = splittedDate[4]
+			var day = splittedDate[5]
+			var year = splittedDate[6]
+	  	  	formattedDate = formatDate(day, month, year);
 	  	  	articleName = $(listElements[i]).children().text()
 	  		if (formattedDate >= todayDate && !contains(todayArticles, articleName)){
 	  			newArticles.push($(listElements[i]).children().attr('href'));
