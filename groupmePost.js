@@ -219,7 +219,7 @@ function getOnePageArticles(searchTerm, year, callback){
 	  	  	formattedDate = formatDate(day, month, year);
 	  	  	articleName = $(listElements[i]).children().text()
 	  		if (formattedDate >= todayDate && !contains(todayArticles, articleName)){
-	  			newArticles.push($(listElements[i]).children().attr('href'));
+	  			newArticles.push(url + $(listElements[i]).children().attr('href'));
 	  			todayArticles.push(articleName)
 	  		}
 		  });
