@@ -13,14 +13,44 @@ var year = 2016; 	//get the current year
 var todayArticles = []
 var todayDate = null;
 
-app.set('port', (process.env.PORT || 5000));
+//app.set('port', (process.env.PORT || 5000));
 
-app.get('/', function (req, res) {
+/*app.get('/', function (req, res) {
   res.send('Hello World!');
-});
+});*/
 
-app.listen(app.get('port'), function () {
-  console.log('Example app listening on port ' + app.get('port'));
+// app.listen(app.get('port'), function () {
+//   console.log('Example app listening on port ' + app.get('port'));
+
+//   var date1 = new Date();
+//   todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
+
+//   var cronJob = cron.job("0 */30 * * * *", function(){			//runs every half an hour
+// 	// perform operation e.g. GET request http.get() etc.
+// 	var holdDate = new Date();
+// 	if (!(holdDate.getFullYear() == todayDate.getFullYear() && holdDate.getMonth() == todayDate.getMonth(), holdDate.getDate() == todayDate.getDate())){
+// 		todayDate = new Date(holdDate.getFullYear(), holdDate.getMonth(), holdDate.getDate());
+// 		todayArticles = []
+// 	}
+// 	getOnePageArticles(searchTerm, year, function(newArticles){
+// 		getUsauArticles(newArticles, function(newArticles){
+// 			if (newArticles.length != 0){
+// 				for (var i = 0; i < newArticles.length; i++){
+// 					postMessage(newArticles[i])
+// 					console.log("New Articles " + new Date())
+// 				}
+// 			}
+// 			else{
+// 				//put the time that this was printed as well
+// 				console.log("No new article " + new Date());
+// 			}
+// 		})
+// 	});
+
+// 	}); 
+
+// 	cronJob.start(); 
+// });
 
   var date1 = new Date();
   todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
@@ -50,7 +80,6 @@ app.listen(app.get('port'), function () {
 	}); 
 
 	cronJob.start(); 
-});
 
 
 function postMessage(newArticle) {
