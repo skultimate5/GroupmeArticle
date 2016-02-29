@@ -25,8 +25,7 @@ app.listen(app.get('port'), function () {
   var date1 = new Date();
   todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
 
-  var cronJob = cron.job("0 * * * * *", function(){			//runs every minute
-	// perform operation e.g. GET request http.get() etc.
+  var cronJob = cron.job("*/15 * * * * *", function(){			//runs every 15 minutes
 	var holdDate = new Date();
 	if (!(holdDate.getFullYear() == todayDate.getFullYear() && holdDate.getMonth() == todayDate.getMonth(), holdDate.getDate() == todayDate.getDate())){
 		todayDate = new Date(holdDate.getFullYear(), holdDate.getMonth(), holdDate.getDate());
@@ -34,17 +33,18 @@ app.listen(app.get('port'), function () {
 	}
 	getOnePageArticles(searchTerm, year, function(newArticles){
 		getUsauArticles(newArticles, function(newArticles){
-			if (newArticles.length != 0){
-				for (var i = 0; i < newArticles.length; i++){
-					postMessage(newArticles[i])
-					console.log("New Articles " + new Date())
+			getSkydArticles(newArticles, function(newArticles){
+				if (newArticles.length != 0){
+					for (var i = 0; i < newArticles.length; i++){
+						postMessage(newArticles[i])
+						console.log("New Articles " + new Date())
+					}
 				}
-			}
-			else{
-				//put the time that this was printed as well
-				console.log("No new article " + new Date());
-			}
-		})
+				else{
+					console.log("No new article " + new Date());
+				}
+			});
+		});
 	});
 
 	}); 
@@ -159,8 +159,8 @@ function contains(a, obj) {
     return false;
 }
 
-function getUsauArticles(newArticles, callback){
-	var url = 'http://www.usaultimate.org/news/default.aspx';
+function getSkydArticles(newArticles, callback){
+	var url = 'http://skydmagazine.com/?s=';
 	request(url, function(err, resp, body){
 
 		//Check for error
@@ -184,6 +184,38 @@ function getUsauArticles(newArticles, callback){
 	  	  	articleName = $(listElements[i]).text()
 	  	  	if (formattedDate >= todayDate && !contains(todayArticles, articleName)){
 	  			newArticles.push($(listElements[i]).attr("href"));
+	  			todayArticles.push(articleName)
+	  		}
+		  });
+		  callback(newArticles);
+	});
+}
+
+function getUsauArticles(newArticles, callback){
+	var url = 'http://www.usaultimate.org/news/default.aspx';
+	request(url, function(err, resp, body){
+
+		//Check for error
+	    if(err){
+	        return console.log('Error:', err);
+	    }
+
+	    //Check for right status code
+	    if(resp.statusCode !== 200){
+	        return console.log('Invalid Status Code Returned:', resp.statusCode);
+	    }
+
+		  $ = cheerio.load(body);
+		  var listElements = $('.info');
+		  var datesPosted = $('.date');
+		  var formattedDate, articleName;
+		  $(datesPosted).each(function(i, date){
+	  	  	var dateHTML = $(date).html();
+	  	  	var splittedDate = dateHTML.substring(0,21).split(" ")
+	  	  	formattedDate = formatDate(splittedDate[1], splittedDate[0], splittedDate[2])
+	  	  	articleName = $(listElements[i]).text()
+	  	  	if (formattedDate >= todayDate && !contains(todayArticles, articleName)){
+	  			newArticles.push($($($(listElements[i]).children()[0]).children()[0]).attr('href'));
 	  			todayArticles.push(articleName)
 	  		}
 		  });
