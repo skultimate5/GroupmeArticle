@@ -55,7 +55,7 @@ var todayDate = null;
   var date1 = new Date();
   todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
 
-  var cronJob = cron.job("0 */30 * * * *", function(){			//runs every half an hour
+  var cronJob = cron.job("0 */15 * * * *", function(){			//runs every half an hour
 	// perform operation e.g. GET request http.get() etc.
 	var holdDate = new Date();
 	if (!(holdDate.getFullYear() == todayDate.getFullYear() && holdDate.getMonth() == todayDate.getMonth(), holdDate.getDate() == todayDate.getDate())){
@@ -63,7 +63,7 @@ var todayDate = null;
 		todayArticles = []
 	}
 	getOnePageArticles(searchTerm, year, function(newArticles){
-		getUsauArticles(newArticles, function(newArticles){
+		//getUsauArticles(newArticles, function(newArticles){
 			if (newArticles.length != 0){
 				for (var i = 0; i < newArticles.length; i++){
 					postMessage(newArticles[i])
@@ -74,7 +74,7 @@ var todayDate = null;
 				//put the time that this was printed as well
 				console.log("No new article " + new Date());
 			}
-		})
+		//})
 	});
 
 	}); 
