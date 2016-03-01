@@ -26,6 +26,7 @@ app.listen(app.get('port'), function () {
   todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
 
   var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
+  	console.log("New hour")
 	var holdDate = new Date();
 	if (!(holdDate.getFullYear() == todayDate.getFullYear() && holdDate.getMonth() == todayDate.getMonth(), holdDate.getDate() == todayDate.getDate())){
 		todayDate = new Date(holdDate.getFullYear(), holdDate.getMonth(), holdDate.getDate());
@@ -41,7 +42,7 @@ app.listen(app.get('port'), function () {
 					}
 				}
 				else{
-					console.log("No new article " + new Date());
+					console.log("No new article " + new Date())
 				}
 			});
 		});
