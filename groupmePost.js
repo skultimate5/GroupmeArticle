@@ -25,7 +25,7 @@ app.listen(app.get('port'), function () {
   var date1 = new Date();
   todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
 
-  var cronJob = cron.job("0 0 * * * *", function(){			//runs every hour
+  var cronJob = cron.job("*/5 * * * * *", function(){			//runs every hour
   	console.log("New hour")
 	var holdDate = new Date();
 	if (!(holdDate.getFullYear() == todayDate.getFullYear() && holdDate.getMonth() == todayDate.getMonth(), holdDate.getDate() == todayDate.getDate())){
@@ -145,7 +145,21 @@ function formatDate(day, month, year) {
 			break;
 
 	}
-	var date = year + "-" + month + "-" + day
+
+	var newDay;
+	if (day.length == 2){
+		if (day[0] == 0){
+			newDay = day[1];
+		}
+		else{
+			newDay = day;
+		}
+	}
+	else{
+		newDay = day;
+	}
+	var date = year + "-" + month + "-" + newDay
+	console.log(date);
 	var formattedDate = new Date(date)
 	return formattedDate
 }
@@ -225,9 +239,8 @@ function getUsauArticles(newArticles, callback){
 }
 
 function getOnePageArticles(searchTerm, year, callback){
-	var url = "http://www.ultiworld.com/";
-	request(url + searchTerm, function(err, resp, body){
-
+	var url = "http://ultiworld.com/search/#gsc.tab=0&gsc.q=ultiworld&gsc.sort=date&gsc.page=1";
+	request(url, function(err, resp, body){
 		//Check for error
 	    if(err){
 	        return console.log('Error:', err);
@@ -239,23 +252,24 @@ function getOnePageArticles(searchTerm, year, callback){
 	    }
 
 		  $ = cheerio.load(body);
-		  var listElements = $('.snippet-excerpt__heading'); 		//list of articles
-		  var datesPosted = $('.snippet-excerpt__byline');			//date for each article
 		  var newArticles = [];
-		  var formattedDate, articleName;
-		  $(datesPosted).each(function(i, date){
-	  	  	var dateHTML = $(date).html();
-	  	  	var splittedDate = dateHTML.substring(0,21).split(" ")
-			var month = splittedDate[4]
-			var day = splittedDate[5]
-			var year = splittedDate[6]
-	  	  	formattedDate = formatDate(day, month, year);
-	  	  	articleName = $(listElements[i]).children().text()
-	  		if (formattedDate >= todayDate && !contains(todayArticles, articleName)){
-	  			newArticles.push(url + $(listElements[i]).children().attr('href'));
+		  var listElements = $('#recent-posts-2').find('a');		//only gets the 5 most recent articles - doesn't get stuff on side (like videos)
+		  $(listElements).each(function(i, element) {
+		  	var articleUrl = $(element).attr('href');
+		  	var splittedDate = articleUrl.substring(21, 31).split("/");
+		  	var month = splittedDate[1];
+		  	var year = splittedDate[0];
+		  	var day = splittedDate[2];
+		  	var formattedDate = formatDate(day, month, year);
+		  	console.log(formattedDate);
+		  	var articleName = articleUrl.substring(31, articleUrl.length).split("/")[1];
+		  	if (formattedDate >= todayDate && !contains(todayArticles, articleName)){
+	  			newArticles.push(articleUrl);
 	  			todayArticles.push(articleName)
 	  		}
+
 		  });
+		  console.log(newArticles);
 		  callback(newArticles);
 	});
 }
