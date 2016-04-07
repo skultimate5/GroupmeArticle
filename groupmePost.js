@@ -25,7 +25,7 @@ app.listen(app.get('port'), function () {
   var date1 = new Date();
   todayDate = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
 
-  var cronJob = cron.job("*/5 * * * * *", function(){			//runs every hour
+  var cronJob = cron.job("*/20 * * * * *", function(){			//runs every hour
   	console.log("New hour")
 	var holdDate = new Date();
 	if (!(holdDate.getFullYear() == todayDate.getFullYear() && holdDate.getMonth() == todayDate.getMonth(), holdDate.getDate() == todayDate.getDate())){
@@ -33,19 +33,23 @@ app.listen(app.get('port'), function () {
 		todayArticles = []
 	}
 	getOnePageArticles(searchTerm, year, function(newArticles){
-		getUsauArticles(newArticles, function(newArticles){
-			getSkydArticles(newArticles, function(newArticles){
-				if (newArticles.length != 0){
-					for (var i = 0; i < newArticles.length; i++){
-						postMessage(newArticles[i])
-						console.log("New Articles " + new Date())
+
+		getLivewireArticles(newArticles, function(newArticles){
+			getUsauArticles(newArticles, function(newArticles){
+				getSkydArticles(newArticles, function(newArticles){
+					if (newArticles.length != 0){
+						for (var i = 0; i < newArticles.length; i++){
+							//postMessage(newArticles[i])
+							console.log(newArticles[i])
+							console.log("New Articles " + new Date())
+						}
 					}
-				}
-				else{
-					console.log("No new article " + new Date())
-				}
-			});
-		});
+					else{
+						console.log("No new article " + new Date())
+					}
+				});
+			});				
+		})
 	});
 
 	}); 
@@ -159,7 +163,6 @@ function formatDate(day, month, year) {
 		newDay = day;
 	}
 	var date = year + "-" + month + "-" + newDay
-	console.log(date);
 	var formattedDate = new Date(date)
 	return formattedDate
 }
@@ -254,6 +257,7 @@ function getOnePageArticles(searchTerm, year, callback){
 		  $ = cheerio.load(body);
 		  var newArticles = [];
 		  var listElements = $('#recent-posts-2').find('a');		//only gets the 5 most recent articles - doesn't get stuff on side (like videos)
+
 		  $(listElements).each(function(i, element) {
 		  	var articleUrl = $(element).attr('href');
 		  	var splittedDate = articleUrl.substring(21, 31).split("/");
@@ -261,7 +265,6 @@ function getOnePageArticles(searchTerm, year, callback){
 		  	var year = splittedDate[0];
 		  	var day = splittedDate[2];
 		  	var formattedDate = formatDate(day, month, year);
-		  	console.log(formattedDate);
 		  	var articleName = articleUrl.substring(31, articleUrl.length).split("/")[1];
 		  	if (formattedDate >= todayDate && !contains(todayArticles, articleName)){
 	  			newArticles.push(articleUrl);
@@ -269,7 +272,40 @@ function getOnePageArticles(searchTerm, year, callback){
 	  		}
 
 		  });
-		  console.log(newArticles);
+		  callback(newArticles);
+	});
+}
+
+function getLivewireArticles(newArticles, callback){
+	var url = "http://ultiworld.com/livewire/";
+	request(url, function(err, resp, body){
+		//Check for error
+	    if(err){
+	        return console.log('Error:', err);
+	    }
+
+	    //Check for right status code
+	    if(resp.statusCode !== 200){
+	        return console.log('Invalid Status Code Returned:', resp.statusCode);
+	    }
+
+		   $ = cheerio.load(body);
+		  var listElements = $('.snippet-excerpt__heading'); 		//list of articles
+		  var datesPosted = $('.snippet-excerpt__byline');			//date for each article
+		  var formattedDate, articleName;
+		  $(datesPosted).each(function(i, date){
+	  	  	var dateHTML = $(date).html();
+	  	  	var splittedDate = dateHTML.substring(0,21).split(" ")
+			var month = splittedDate[4]
+			var day = splittedDate[5]
+			var year = splittedDate[6]
+	  	  	formattedDate = formatDate(day, month, year);
+	  	  	articleName = $(listElements[i]).children().text()
+	  		if (formattedDate >= todayDate && !contains(todayArticles, articleName)){
+	  			newArticles.push(url + $(listElements[i]).children().attr('href'));
+	  			todayArticles.push(articleName)
+	  		}
+		  });
 		  callback(newArticles);
 	});
 }
