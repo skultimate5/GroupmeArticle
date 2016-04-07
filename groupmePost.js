@@ -39,7 +39,7 @@ app.listen(app.get('port'), function () {
 				getSkydArticles(newArticles, function(newArticles){
 					if (newArticles.length != 0){
 						for (var i = 0; i < newArticles.length; i++){
-							//postMessage(newArticles[i])
+							postMessage(newArticles[i])
 							console.log(newArticles[i])
 							console.log("New Articles " + new Date())
 						}
